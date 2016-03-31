@@ -3,9 +3,12 @@
  */
 package com.notepad;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 
-public class NotePad extends JFrame{
+public class NotePad extends JFrame implements ActionListener{
 	
 	//定义组件
 	JTextArea jta = null;
@@ -31,7 +34,14 @@ public class NotePad extends JFrame{
 		//为菜单设置提示标识符
 		jmFile.setMnemonic('F');
 		jmiOpen = new JMenuItem("打开");
+		
+		//注册监听jmiOpen
+//		jmiOpen.addActionListener(this);
+//		jmiOpen.setActionCommand("open");
+		
 		jmiSave = new JMenuItem("保存");
+		//添加组件被监听的函数
+		setListening();
 		
 		//调用添加Menu到JFrame的方法
 		setMenu();
@@ -49,6 +59,42 @@ public class NotePad extends JFrame{
 		jmb.add(jmFile);
 		jmFile.add(jmiOpen);
 		jmFile.add(jmiSave);
+		
+	}
+	
+	//组件实现被JFrame监听的函数,并设置该组件的ActionCommand
+	public void setListening() {
+		jmiOpen.addActionListener(this);
+		jmiOpen.setActionCommand("open");
+		jmiSave.addActionListener(this);
+		jmiSave.setActionCommand("save");
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e)//监听器监听到动作后的执行函数 
+	{
+		//new一个文件选择组件
+		JFileChooser jfc = new JFileChooser();
+		
+		//判断监听哪一个设置了监听的组件被点击了，然后执行相应的动作
+		if (e.getActionCommand().equals("open")) {
+			//System.out.println("open");
+			//设置选择文件选择组件的标题
+			jfc.setDialogTitle("请选择文件...");
+			//选择打开的方式
+			jfc.showOpenDialog(null);
+			//显示
+			jfc.setVisible(true);
+		}
+		else if (e.getActionCommand().equals("save")) {
+			//System.out.println("save");
+			//设置选择文件组件的标题
+			jfc.setDialogTitle("保存");
+			//选择打开的方式
+			jfc.showSaveDialog(null);
+			//显示
+			jfc.setVisible(true);
+		}
 		
 	}
 
