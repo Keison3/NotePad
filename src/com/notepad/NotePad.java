@@ -3,15 +3,22 @@
  */
 package com.notepad;
 
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.*;
 
 public class NotePad extends JFrame implements ActionListener{
 	
 	//定义组件
-	JTextArea jta = null;
+	TextArea jta = null;
 	
 	//添加菜单
 	JMenuBar jmb = null;
@@ -28,7 +35,7 @@ public class NotePad extends JFrame implements ActionListener{
 	//构造函数
 	public NotePad()
 	{
-		jta = new JTextArea();
+		jta = new TextArea("",50,50,TextArea.SCROLLBARS_VERTICAL_ONLY);//参数设置了TextArea的一行的长度还有滚动条
 		jmb = new JMenuBar();
 		jmFile = new JMenu("文件");
 		//为菜单设置提示标识符
@@ -48,7 +55,7 @@ public class NotePad extends JFrame implements ActionListener{
 		
 		//添加到JFrame
 		this.add(jta);
-		this.setSize(400,300);
+		this.setSize(600,500);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
 	}
@@ -71,7 +78,7 @@ public class NotePad extends JFrame implements ActionListener{
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e)//监听器监听到动作后的执行函数 
+	public void actionPerformed(ActionEvent e)//监听器监听到动作后的执行函数 ：ActionEvent是一个对控件的获取的一个类
 	{
 		//new一个文件选择组件
 		JFileChooser jfc = new JFileChooser();
@@ -85,6 +92,47 @@ public class NotePad extends JFrame implements ActionListener{
 			jfc.showOpenDialog(null);
 			//显示
 			jfc.setVisible(true);
+			
+			//显示了文件选择的dialog后可以选择具体路径下的文件
+			//得到所选路径
+			//得到所选文件的全路径
+			String filePath = jfc.getSelectedFile().getAbsolutePath();
+			if (filePath==null) {
+				return;
+			}
+			//测试看是否获取了改文件
+			//System.out.println(filePath);
+			//使用缓冲字符流读取所选文件的内容
+			FileReader fileReader = null;
+			BufferedReader bufferedReader = null;
+			try {
+				fileReader = new FileReader(filePath);
+				bufferedReader = new BufferedReader(fileReader);
+				
+				//读取后显示信息在jta上
+				String string = "";
+				String allContent = "";
+				while ((string=bufferedReader.readLine())!=null) {
+					//System.out.println(string);//测试返回到string的是什么信息:经测试得到的是读取的内容
+					allContent +=string+"\r\n";				
+				}
+				
+				jta.setText(allContent);
+				
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}finally {//对于打开的IO流一定要给予关闭
+				try {
+					bufferedReader.close();
+					fileReader.close();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+			
 		}
 		else if (e.getActionCommand().equals("save")) {
 			//System.out.println("save");
@@ -94,6 +142,35 @@ public class NotePad extends JFrame implements ActionListener{
 			jfc.showSaveDialog(null);
 			//显示
 			jfc.setVisible(true);
+			//获取保存的路径
+			String filePath =jfc.getSelectedFile().getAbsolutePath();
+			if (filePath==null) {
+				return;
+			}
+			
+			//获取到内容后写进文件中
+			FileWriter fileWriter = null;
+			BufferedWriter bufferedWriter = null;
+			try {
+				fileWriter = new FileWriter(filePath);
+				bufferedWriter = new BufferedWriter(fileWriter);
+				
+				//写内容进去
+				bufferedWriter.write(jta.getText());
+				
+			} catch (Exception e2) {
+				// TODO: handle exception
+				e2.printStackTrace();
+			}finally {
+				try {
+					bufferedWriter.close();
+					fileWriter.close();
+				} catch (Exception e3) {
+					// TODO: handle exception
+					e3.printStackTrace();
+				}
+			}
+			
 		}
 		
 	}
